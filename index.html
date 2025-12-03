@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="DogeNode - Gana Dogecoin compartiendo tu ancho de banda">
+    <meta name="keywords" content="dogecoin, crypto, earnings, mining, passive income">
+    <title>DogeNode - Gana Dogecoin Pasivamente</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐕</text></svg>">
+</head>
+<body class="bg-gradient-to-br from-yellow-400 via-orange-400 to-yellow-500">
+    
+    <!-- Loading Screen -->
+    <div id="loadingScreen" class="fixed inset-0 bg-gradient-to-br from-yellow-400 via-orange-400 to-yellow-500 flex items-center justify-center z-50">
+        <div class="text-center">
+            <div class="text-6xl mb-4 animate-bounce">🐕</div>
+            <div class="text-white text-2xl font-bold mb-4">DogeNode</div>
+            <div class="loading-spinner"></div>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div id="mainApp" class="hidden">
+        
+        <!-- Navigation -->
+        <nav class="bg-white shadow-lg">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center h-16">
+                    <div class="flex items-center gap-3">
+                        <div class="text-3xl">🐕</div>
+                        <span class="text-2xl font-bold text-gray-800">DogeNode</span>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div id="walletStatus" class="hidden">
+                            <div class="flex items-center gap-2 px-4 py-2 bg-green-100 rounded-lg">
+                                <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                                <span class="text-sm font-semibold text-gray-700" id="walletAddressNav"></span>
+                            </div>
+                        </div>
+                        <button id="navWalletBtn" class="px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg font-semibold transition">
+                            <i class="fas fa-wallet mr-2"></i>
+                            <span id="navWalletText">Conectar Wallet</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            
+            <!-- Extension Alert -->
+            <div id="extensionAlert" class="bg-yellow-100 border-l-4 border-yellow-500 p-6 rounded-lg mb-6 shadow-lg">
+                <div class="flex items-start">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-exclamation-triangle text-yellow-500 text-3xl"></i>
+                    </div>
+                    <div class="ml-4 flex-1">
+                        <h3 class="text-lg font-bold text-gray-800 mb-2">
+                            <i class="fas fa-puzzle-piece mr-2"></i>
+                            Extensión Requerida para Retiros
+                        </h3>
+                        <p class="text-gray-700 mb-4">
+                            Para conectar tu wallet y retirar tus ganancias en DOGE, necesitas instalar nuestra extensión de navegador Chrome.
+                        </p>
+                        <button onclick="showExtensionInstructions()" class="px-6 py-3 bg-purple-500 hover:bg-purple-600 text-white rounded-lg font-bold transition inline-flex items-center gap-2">
+                            <i class="fas fa-download"></i>
+                            Ver Instrucciones de Instalación
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Wallet Connection Status -->
+            <div id="walletConnected" class="bg-white rounded-2xl shadow-xl p-6 mb-6 hidden">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
+                            <i class="fas fa-check text-white text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-gray-800">Wallet Conectada</h3>
+                            <p class="text-gray-600 font-mono text-sm" id="connectedAddress"></p>
+                        </div>
+                    </div>
+                    <button onclick="manageWallet()" class="px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg font-semibold transition">
+                        <i class="fas fa-cog mr-2"></i>
+                        Gestionar
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stats Overview -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+                <div class="bg-white rounded-2xl shadow-lg p-6 transform hover:scale-105 transition">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-coins text-yellow-500 text-xl"></i>
+                        </div>
+                        <span class="text-sm text-gray-500">Total</span>
+                    </div>
+                    <h3 class="text-3xl font-bold text-gray-800" id="totalEarnings">0.00</h3>
+                    <p class="text-gray-600 text-sm">DOGE Ganados</p>
+                </div>
+
+                <div class="bg-white rounded-2xl shadow-lg p-6 transform hover:scale-105 transition">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-wallet text-green-500 text-xl"></i>
+                        </div>
+                        <span class="text-sm text-gray-500">Disponible</span>
+                    </div>
+                    <h3 class="text-3xl font-bold text-gray-800" id="availableBalance">0.00</h3>
+                    <p class="text-gray-600 text-sm">DOGE Balance</p>
+                </div>
+
+                <div class="bg-white rounded-2xl shadow-lg p-6 transform hover:scale-105 transition">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-chart-line text-blue-500 text-xl"></i>
+                        </div>
+                        <span class="text-sm text-gray-500">Hoy</span>
+                    </div>
+                    <h3 class="text-3xl font-bold text-gray-800" id="todayEarnings">0.00</h3>
+                    <p class="text-gray-600 text-sm">DOGE Hoy</p>
+                </div>
+
+                <div class="bg-white rounded-2xl shadow-lg p-6 transform hover:scale-105 transition">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-arrow-up text-purple-500 text-xl"></i>
+                        </div>
+                        <span class="text-sm text-gray-500">Retiros</span>
+                    </div>
+                    <h3 class="text-3xl font-bold text-gray-800" id="totalWithdrawals">0</h3>
+                    <p class="text-gray-600 text-sm">Completados</p>
+                </div>
+            </div>
+
+            <!-- Main Earnings Card -->
+            <div class="bg-white rounded-3xl shadow-2xl p-8 mb-6">
+                <div class="text-center mb-8">
+                    <div class="inline-flex items-center gap-3 mb-4">
+                        <div class="w-16 h-16 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center text-white text-3xl font-bold shadow-lg">
+                            Ð
+                        </div>
+                        <div class="text-left">
+                            <h2 class="text-6xl font-bold text-gray-800" id="mainBalance">0.00</h2>
+                            <p class="text-gray-500 text-lg">DOGE</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 text-xl font-semibold">Ganancias Totales</p>
+                    <p class="text-gray-500" id="balanceUSD">≈ $0.00 USD</p>
+                </div>
+
+                <!-- Mining Controls -->
+                <div class="flex flex-col items-center gap-4 mb-8">
+                    <button id="miningToggle" onclick="toggleMining()" class="mining-btn">
+                        <i class="fas fa-wifi mr-3"></i>
+                        <span id="miningText">Comenzar a Ganar</span>
+                    </button>
+                    
+                    <div id="miningStatus" class="hidden">
+                        <div class="flex items-center gap-2 px-6 py-3 bg-green-100 text-green-700 rounded-full">
+                            <div class="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                            <span class="font-semibold">Conectado y Ganando</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stats Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="stat-card bg-gradient-to-br from-blue-50 to-blue-100">
+                        <i class="fas fa-network-wired text-blue-500 text-3xl mb-3"></i>
+                        <p class="text-gray-600 text-sm mb-2">Ancho de Banda Compartido</p>
+                        <p class="text-4xl font-bold text-gray-800"><span id="bandwidth">0</span> MB</p>
+                    </div>
+
+                    <div class="stat-card bg-gradient-to-br from-purple-50 to-purple-100">
+                        <i class="fas fa-clock text-purple-500 text-3xl mb-3"></i>
+                        <p class="text-gray-600 text-sm mb-2">Tiempo Activo</p>
+                        <p class="text-4xl font-bold text-gray-800" id="uptime">00:00:00</p>
+                    </div>
+
+                    <div class="stat-card bg-gradient-to-br from-green-50 to-green-100">
+                        <i class="fas fa-users text-green-500 text-3xl mb-3"></i>
+                        <p class="text-gray-600 text-sm mb-2">Referidos Activos</p>
+                        <p class="text-4xl font-bold text-gray-800" id="referrals">0</p>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="mt-8 flex gap-4 justify-center">
+                    <button onclick="openWithdrawModal()" class="px-8 py-3 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-lg font-bold transition transform hover:scale-105 shadow-lg">
+                        <i class="fas fa-arrow-up mr-2"></i>
+                        Retirar DOGE
+                    </button>
+                    <button onclick="openReferralModal()" class="px-8 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white rounded-lg font-bold transition transform hover:scale-105 shadow-lg">
+                        <i class="fas fa-share-alt mr-2"></i>
+                        Invitar Amigos
+                    </button>
+                </div>
+            </div>
+
+            <!-- How It Works Section -->
+            <div class="bg-white rounded-3xl shadow-2xl p-8 mb-6">
+                <h3 class="text-3xl font-bold text-gray-800 mb-8 text-center">
+                    <i class="fas fa-info-circle text-yellow-500 mr-3"></i>
+                    ¿Cómo Funciona?
+                </h3>
+                <div class="grid md:grid-cols-4 gap-8">
+                    <div class="text-center group">
+                        <div class="w-20 h-20 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg transform group-hover:scale-110 transition">
+                            <span class="text-3xl font-bold text-white">1</span>
+                        </div>
+                        <h4 class="font-bold text-gray-800 mb-2 text-lg">Instala</h4>
+                        <p class="text-gray-600 text-sm">Descarga e instala la extensión del navegador</p>
+                    </div>
+                    <div class="text-center group">
+                        <div class="w-20 h-20 bg-gradient-to-br from-orange-400 to-red-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg transform group-hover:scale-110 transition">
+                            <span class="text-3xl font-bold text-white">2</span>
+                        </div>
+                        <h4 class="font-bold text-gray-800 mb-2 text-lg">Conecta</h4>
+                        <p class="text-gray-600 text-sm">Conecta tu wallet de Dogecoin favorita</p>
+                    </div>
+                    <div class="text-center group">
+                        <div class="w-20 h-20 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg transform group-hover:scale-110 transition">
+                            <span class="text-3xl font-bold text-white">3</span>
+                        </div>
+                        <h4 class="font-bold text-gray-800 mb-2 text-lg">Gana</h4>
+                        <p class="text-gray-600 text-sm">Comparte tu ancho de banda y gana DOGE automáticamente</p>
+                    </div>
+                    <div class="text-center group">
+                        <div class="w-20 h-20 bg-gradient-to-br from-orange-400 to-red-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg transform group-hover:scale-110 transition">
+                            <span class="text-3xl font-bold text-white">4</span>
+                        </div>
+                        <h4 class="font-bold text-gray-800 mb-2 text-lg">Retira</h4>
+                        <p class="text-gray-600 text-sm">Retira tus DOGE directamente a tu wallet</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Transactions -->
+            <div class="bg-white rounded-3xl shadow-2xl p-8 mb-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-2xl font-bold text-gray-800">
+                        <i class="fas fa-history text-blue-500 mr-3"></i>
+                        Transacciones Recientes
+                    </h3>
+                    <button onclick="viewAllTransactions()" class="text-blue-500 hover:text-blue-600 font-semibold">
+                        Ver todas <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+                <div id="transactionsList">
+                    <div class="text-center py-12 text-gray-400">
+                        <i class="fas fa-inbox text-6xl mb-4"></i>
+                        <p>No hay transacciones todavía</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Referral Program -->
+            <div class="bg-gradient-to-r from-yellow-400 via-orange-400 to-red-500 rounded-3xl shadow-2xl p-8 text-white mb-6">
+                <div class="flex items-center gap-4 mb-6">
+                    <div class="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+                        <i class="fas fa-users text-4xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-3xl font-bold mb-2">Programa de Referidos</h3>
+                        <p class="text-lg opacity-90">Gana 10% extra de las ganancias de tus referidos de por vida</p>
+                    </div>
+                </div>
+                <div class="bg-white bg-opacity-20 backdrop-blur-sm rounded-2xl p-6">
+                    <p class="text-sm font-semibold mb-3">Tu Enlace Único de Referido:</p>
+                    <div class="flex gap-3">
+                        <input type="text" id="referralLink" readonly class="flex-1 px-4 py-3 rounded-lg bg-white bg-opacity-30 text-white font-mono text-sm" value="https://dogenode.github.io/ref/ABC123">
+                        <button onclick="copyReferralLink()" class="px-6 py-3 bg-white text-orange-500 rounded-lg font-bold hover:bg-opacity-90 transition">
+                            <i class="fas fa-copy mr-2"></i>
+                            Copiar
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-3 gap-4 mt-6">
+                        <div class="text-center">
+                            <p class="text-3xl font-bold">0</p>
+                            <p class="text-sm opacity-80">Referidos</p>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-3xl font-bold">0.00</p>
+                            <p class="text-sm opacity-80">DOGE Ganados</p>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-3xl font-bold">10%</p>
+                            <p class="text-sm opacity-80">Comisión</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- Footer -->
+        <footer class="bg-white mt-12 py-8">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="grid md:grid-cols-4 gap-8">
+                    <div>
+                        <div class="flex items-center gap-2 mb-4">
+                            <span class="text-3xl">🐕</span>
+                            <span class="text-xl font-bold text-gray-800">DogeNode</span>
+                        </div>
+                        <p class="text-gray-600 text-sm">
+                            Gana Dogecoin de forma pasiva compartiendo tu ancho de banda de internet.
+                        </p>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-gray-800 mb-4">Enlaces</h4>
+                        <ul class="space-y-2 text-gray-600 text-sm">
+                            <li><a href="#" class="hover:text-orange-500">Inicio</a></li>
+                            <li><a href="#" class="hover:text-orange-500">Cómo Funciona</a></li>
+                            <li><a href="#" class="hover:text-orange-500">Preguntas Frecuentes</a></li>
+                            <li><a href="#" class="hover:text-orange-500">Soporte</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-gray-800 mb-4">Legal</h4>
+                        <ul class="space-y-2 text-gray-600 text-sm">
+                            <li><a href="#" class="hover:text-orange-500">Términos de Servicio</a></li>
+                            <li><a href="#" class="hover:text-orange-500">Política de Privacidad</a></li>
+                            <li><a href="#" class="hover:text-orange-500">Cookies</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-gray-800 mb-4">Comunidad</h4>
+                        <div class="flex gap-3">
+                            <a href="#" class="w-10 h-10 bg-gray-200 hover:bg-blue-500 rounded-full flex items-center justify-center transition">
+                                <i class="fab fa-twitter text-gray-600 hover:text-white"></i>
+                            </a>
+                            <a href="#" class="w-10 h-10 bg-gray-200 hover:bg-purple-500 rounded-full flex items-center justify-center transition">
+                                <i class="fab fa-discord text-gray-600 hover:text-white"></i>
+                            </a>
+                            <a href="#" class="w-10 h-10 bg-gray-200 hover:bg-red-500 rounded-full flex items-center justify-center transition">
+                                <i class="fab fa-reddit text-gray-600 hover:text-white"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="border-t border-gray-200 mt-8 pt-8 text-center text-gray-600 text-sm">
+                    <p>&copy; 2024 DogeNode. Todos los derechos reservados.</p>
+                    <p class="mt-2" id="extensionStatusFooter">
+                        <i class="fas fa-circle text-gray-400 mr-2"></i>
+                        Extensión: No detectada
+                    </p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Withdraw Modal -->
+    <div id="withdrawModal" class="modal">
+        <div class="modal-content">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-2xl font-bold text-gray-800">
+                    <i class="fas fa-arrow-up text-purple-500 mr-3"></i>
+                    Retirar DOGE
+                </h3>
+                <button onclick="closeWithdrawModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-2xl"></i>
+                </button>
+            </div>
+            
+            <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6 rounded">
+                <p class="text-sm text-blue-800">
+                    <i class="fas fa-info-circle mr-2"></i>
+                    <strong>Nota:</strong> Para retirar necesitas tener la extensión instalada y una wallet conectada.
+                </p>
+            </div>
+
+            <form onsubmit="processWithdraw(event)">
+                <div class="mb-6">
+                    <label class="block text-gray-700 font-semibold mb-2">
+                        Dirección de Destino
+                    </label>
+                    <input type="text" id="withdrawAddress" placeholder="D8r5F3m..." class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" required>
+                    <p class="text-gray-500 text-sm mt-2">Ingresa tu dirección de Dogecoin</p>
+                </div>
+
+                <div class="mb-6">
+                    <label class="block text-gray-700 font-semibold mb-2">
+                        Cantidad (DOGE)
+                    </label>
+                    <input type="number" id="withdrawAmount" placeholder="0.00" step="0.01" min="10" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" required>
+                    <div class="flex justify-between text-sm mt-2">
+                        <span class="text-gray-500">Mínimo: 10 DOGE</span>
+                        <span class="text-gray-700 font-semibold">Disponible: <span id="modalAvailable">0.00</span> DOGE</span>
+                    </div>
+                </div>
+
+                <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 mb-6 rounded">
+                    <p class="text-sm text-yellow-800">
+                        <i class="fas fa-exclamation-triangle mr-2"></i>
+                        Fee de red: ~1 DOGE | Procesamiento: 1-5 minutos
+                    </p>
+                </div>
+
+                <div class="flex gap-3">
+                    <button type="button" onclick="closeWithdrawModal()" class="flex-1 px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg font-bold transition">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="flex-1 px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-lg font-bold transition">
+                        <i class="fas fa-paper-plane mr-2"></i>
+                        Retirar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Referral Modal -->
+    <div id="referralModal" class="modal">
+        <div class="modal-content">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-2xl font-bold text-gray-800">
+                    <i class="fas fa-share-alt text-blue-500 mr-3"></i>
+                    Invitar Amigos
+                </h3>
+                <button onclick="closeReferralModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-2xl"></i>
+                </button>
+            </div>
+
+            <div class="text-center mb-6">
+                <div class="inline-block p-6 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full mb-4">
+                    <i class="fas fa-gift text-white text-4xl"></i>
+                </div>
+                <h4 class="text-2xl font-bold text-gray-800 mb-2">Gana 10% Extra</h4>
+                <p class="text-gray-600">Por cada amigo que invites y gane DOGE, tú recibes 10% extra</p>
+            </div>
+
+            <div class="bg-gray-50 rounded-xl p-6 mb-6">
+                <p class="text-sm text-gray-600 mb-3 font-semibold">Tu enlace de referido:</p>
+                <div class="flex gap-2">
+                    <input type="text" id="modalReferralLink" readonly class="flex-1 px-4 py-3 bg-white border border-gray-300 rounded-lg font-mono text-sm" value="https://dogenode.github.io/ref/ABC123">
+                    <button onclick="copyModalReferralLink()" class="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-bold transition">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-4 mb-6">
+                <button onclick="shareTwitter()" class="p-4 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition">
+                    <i class="fab fa-twitter text-2xl mb-2"></i>
+                    <p class="text-sm">Twitter</p>
+                </button>
+                <button onclick="shareFacebook()" class="p-4 bg-blue-700 hover:bg-blue-800 text-white rounded-lg transition">
+                    <i class="fab fa-facebook text-2xl mb-2"></i>
+                    <p class="text-sm">Facebook</p>
+                </button>
+                <button onclick="shareWhatsApp()" class="p-4 bg-green-500 hover:bg-green-600 text-white rounded-lg transition">
+                    <i class="fab fa-whatsapp text-2xl mb-2"></i>
+                    <p class="text-sm">WhatsApp</p>
+                </button>
+            </div>
+
+            <button onclick="closeReferralModal()" class="w-full px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg font-bold transition">
+                Cerrar
+            </button>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="toast">
+        <div class="flex items-center gap-3">
+            <i id="toastIcon" class="fas fa-check-circle text-2xl"></i>
+            <div>
+                <p id="toastTitle" class="font-bold"></p>
+                <p id="toastMessage" class="text-sm"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/storage.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/wallet.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
